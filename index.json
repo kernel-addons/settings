@@ -1,0 +1,6 @@
+{
+    "name": "Settings",
+    "id": "kernel-settings",
+    "dependencies": [],
+    "description": "Gives you a settings UI for kernel."
+}
