@@ -36,7 +36,7 @@ export function ButtonWrapper({value, onChange, disabled}) {
 };
 
 export function openItem(_path) {
-    if (_path.endsWith(".asar")) return window.KernelSettings.showItemInFoldeR(_path);
+    if (_path.endsWith(".asar")) return window.KernelSettings.showItemInFolder(_path);
 
     window.KernelSettings.openPath(_path);
 };
