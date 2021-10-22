@@ -5,11 +5,13 @@ if (typeof (Array.prototype.at) !== "function") {
 }
 
 export default class Webpack {
-    static #id = "kernel-req";
+    static #id = "kernel-req" + Math.random().toString().slice(2, 3);
     static #_cache = null;
 
+    static get webpackNamespace() {return window.webpackJsonp || window.webpackChunkdiscord_app;}
+
     static async wait(callback) {
-        while (typeof (webpackJsonp) === "undefined" || webpackJsonp.flat(10).length < 8000)
+        while (!this.webpackNamespace || this.webpackNamespace.flat(10).length < 50)
             await new Promise(res => setTimeout(res, 0));
         
         typeof(callback) === "function" && callback();
@@ -17,12 +19,15 @@ export default class Webpack {
 
     static #request(cache) {
         if (cache && this.#_cache) return this.#_cache;
+        let req = void 0;
 
-        const req = window.webpackJsonp.push([[], {
-            [this.#id]: (module, exports, req) => module.exports = req
-        }, [[this.#id]]]);
-        delete req.m[this.#id];
-        delete req.c[this.#id];
+        if ("webpackJsonp" in window) {
+            req = window.webpackJsonp.push([[], {
+                [this.#id]: (module, exports, req) => module.exports = req
+            }, [[this.#id]]]);
+        } else if ("webpackChunkdiscord_app" in window) {
+            window.webpackChunkdiscord_app.push([[this.#id], {}, __webpack_require__ => req = __webpack_require__]);
+        }
 
         return this.#_cache = req;
     }
