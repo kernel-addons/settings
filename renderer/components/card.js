@@ -70,7 +70,7 @@ export default function KernelCard({pkg}) {
             }),
             pkg.description && React.createElement("div", {
                 className: "kernel-card-desc",
-            }, React.createElement(Components.get("Markdown"), null, pkg.description)),
+            }, React.createElement(Components.get("Markdown", e => "rules" in e), null, pkg.description)),
             React.createElement("div", {
                 className: "kernel-footer",
                 children: React.createElement(ButtonWrapper, {

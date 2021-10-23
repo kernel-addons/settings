@@ -7,15 +7,15 @@ export default class Components {
         const name = props.join(":");
         if (this.#_cache[name]) return this.#_cache[name];
 
-        this.#_cache[name] = Webpack.findByProps(...props);
+        this.#_cache[name] = Webpack.findModule(m => props.every(p => p in m) && typeof(m) === "function");
 
         return this.#_cache[name];
     }
 
-    static get(name) {
+    static get(name, filter = _ => _) {
         if (this.#_cache[name]) return this.#_cache[name];
 
-        this.#_cache[name] = Webpack.findByDisplayName(name);
+        this.#_cache[name] = Webpack.findModule(m => m.displayName === name && filter(m));
 
         return this.#_cache[name];
     }
