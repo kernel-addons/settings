@@ -4,24 +4,101 @@ if (typeof (Array.prototype.at) !== "function") {
     };
 }
 
-export default class Webpack {
-    static #id = "kernel-req" + Math.random().toString().slice(2, 3);
-    static #_cache = null;
+export const Events = {
+    CREATE: "CREATE",
+    LENGTH_CHANGE: "LENGTH_CHANGE",
+    PUSH: "PUSH",
+    LOADED: "LOADED"
+};
 
-    static get webpackNamespace() {return window.webpackJsonp || window.webpackChunkdiscord_app;}
+const Webpack = window.Webpack ?? (window.Webpack = new class Webpack {
+    get #id() {return "kernel-req" + Math.random().toString().slice(2, 5)};
 
-    static async wait(callback) {
-        while (!this.webpackNamespace || this.webpackNamespace.flat(10).length < 50)
-            await new Promise(res => setTimeout(res, 0));
+    #_cache = null;
+
+    #events = Object.fromEntries(Object.keys(Events).map(key => [key, new Set()]));
+
+    constructor() {
+        Object.defineProperty(window, "webpackChunkdiscord_app", {
+            get() {return void 0;},
+            set: (value) => {
+                this.dispatch(Events.CREATE);
+
+                const originalPush = value.push;
+                value.push = (...values) => {
+                    this.dispatch(Events.LENGTH_CHANGE, value.length + values.length);
+                    this.dispatch(Events.PUSH, values);
+
+                    return Reflect.apply(originalPush, value, values);
+                };
+                
+                Object.defineProperty(window, "webpackChunkdiscord_app", {
+                    value,
+                    configurable: true,
+                    writable: true
+                });
+                return value;
+            },
+            configurable: true
+        });
+
+        const unlisten = this.on(Events.PUSH, ([[, chunk]]) => {
+            const values = Object.values(chunk);
         
-        typeof(callback) === "function" && callback();
+            if (values.length === 1 && values.some(e => e.toString().indexOf("new Worker") > -1)) {
+                this.dispatch(Events.LOADED);
+                unlisten();
+            }
+        });
     }
 
-    static #request(cache) {
+
+    dispatch(event, ...args) {
+        if (!(event in this.#events)) throw new Error(`Unknown Event: ${event}`);
+
+        this.#events[event].forEach(callback => {
+            try {callback(...args);}
+            catch (err) {console.error(err);}
+        });
+    }
+
+    on(event, callback) {
+        if (!(event in this.#events)) throw new Error(`Unknown Event: ${event}`);
+
+        return this.#events[event].add(callback), () => this.off(event, callback);
+    }
+
+    off(event, callback) {
+        if (!(event in this.#events)) throw new Error(`Unknown Event: ${event}`);
+
+        return this.#events[event].delete(callback);
+    }
+
+    once(event, callback) {
+        const unlisten = this.on(event, (...args) => {
+            unlisten();
+            callback(...args);
+        });
+    }
+
+    get webpackLength() {return this.webpackNamespace ? this.webpackNamespace.flat(10).length : 0;}
+
+    get webpackNamespace() {return window.webpackJsonp || window.webpackChunkdiscord_app;}
+
+    async wait(callback) {
+        return new Promise(resolve => {
+            this.once(Events.LOADED, () => {
+                resolve();
+                typeof (callback) === "function" && callback();
+            });
+        });
+    }
+
+    request(cache) {
         if (cache && this.#_cache) return this.#_cache;
         let req = void 0;
 
-        if ("webpackJsonp" in window) {
+        if ("webpackJsonp" in window && !webpackJsonp.__polyfill) {
             req = window.webpackJsonp.push([[], {
                 [this.#id]: (module, exports, req) => module.exports = req
             }, [[this.#id]]]);
@@ -29,26 +106,32 @@ export default class Webpack {
             window.webpackChunkdiscord_app.push([[this.#id], {}, __webpack_require__ => req = __webpack_require__]);
         }
 
-        return this.#_cache = req;
+        this.#_cache = req;
+        return req;
     }
 
-    static findModule(filter, all = false, cache = true) {
-        const __webpack_require__ = this.#request(cache);
-        const found = [];   
+    findModule(filter, all = false, cache = true) {
+        const __webpack_require__ = this.request(cache);
+        const found = [];
+
+        const wrapFilter = (module) => {
+            try {return filter(module);}
+            catch {return false;}
+        };
 
         for (let i in __webpack_require__.c) {
             var m = __webpack_require__.c[i].exports;
-            if (m && (typeof m == "object" || typeof m == "function") && filter(m)) found.push(m);
-            if (m && m.__esModule) for (let j in m) if (m[j] && (typeof m[j] == "object" || typeof m[j] == "function") && filter(m[j])) found.push(m[j]);
+            if ((typeof m == "object" || typeof m == "function") && wrapFilter(m)) found.push(m);
+            if (m?.__esModule) for (let j in m) if ((typeof m[j] == "object" || typeof m[j] == "function") && wrapFilter(m[j])) found.push(m[j]);
         }
-        return all ? found : found.shift();
+        return all ? found : found.at(0);
     }
 
-    static findModules(filter) {return this.findModule(filter, true);}
+    findModules(filter) {return this.findModule(filter, true);}
 
-    static bulk(...filters) {
-        const found = new Array(filters.length - 1);
-
+    bulk(...filters) {
+        const found = new Array(filters.length);
+        
         this.findModule(module => {
             const matches = filters.filter(filter => {
                 try {return filter(module);}
@@ -67,25 +150,29 @@ export default class Webpack {
         return found;
     }
 
-    static findByProps(...props) {
+    findByProps(...props) {
         const bulk = typeof (props.at(-1)) === "boolean" && props.at(-1);
-        const filter = (props, module) => props.every(prop => prop in module);
-
+        const filter = (props, module) => module && props.every(prop => prop in module);
+        
         return bulk
-            ? this.bulk(props.map(props => filter.bind(null, props))) 
+            ? this.bulk(...props.slice(0, -1).map(props => filter.bind(null, props)))
             : this.findModule(filter.bind(null, props));
     }
 
-    static findByDisplayName(...displayName) {
+    findByDisplayName(...displayName) {
         const bulk = typeof (displayName.at(-1)) === "boolean" && displayName.at(-1);
         const defaultExport = typeof (displayName.at(-2)) === "boolean" && displayName.at(-2);
+        if (bulk) displayName.splice(-1, 1);
+        if (defaultExport) displayName.splice(-1, 1);
 
-        const filter = (module) => displayName.some(name => defaultExport
+        const filter = (name, module) => defaultExport
             ? module?.default?.displayName === name
-            : module?.displayName === name);
+            : module?.displayName === name;
         
         return bulk
-            ? this.bulk(filter)
-            : this.findModule(filter);
+            ? this.bulk(...displayName.map(name => filter.bind(null, name)))
+            : this.findModule(filter.bind(null, displayName[0]));
     }
-}
+});
+
+export default Webpack;

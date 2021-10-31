@@ -1,7 +1,7 @@
 import KernelPanel from "./components/panel.js";
 import Logger from "./modules/logger.js";
 import Patcher from "./modules/patcher.js";
-import Webpack from "./modules/webpack.js";
+import Webpack, {Events} from "./modules/webpack.js";
 
 const SettingsSections = [
     {section: "DIVIDER"},
@@ -19,7 +19,8 @@ const SettingsSections = [
 ];
 
 export default new class KernelSettings {
-    start() {Webpack.wait(() => this.onStart());}
+    start() {Webpack.once(Events.LOADED, () => this.onStart());}
+    // start() {Webpack.wait(() => this.onStart());}
 
     stop() {
         if (!this.styleElement) return;
@@ -31,7 +32,6 @@ export default new class KernelSettings {
     onStart() {
         window.React = Webpack.findByProps("createElement", "useEffect");
 
-        window.Webpack = Webpack;
         Logger.log("Core", "Started.");
         this.loadStyles();
         this.patchSettingsView();
