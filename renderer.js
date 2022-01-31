@@ -1,3 +1,1 @@
-import KernelSettings from "./renderer/index.js"
-
-export default KernelSettings;
+export {Core as default} from "./dist/renderer.js";

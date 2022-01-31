@@ -1,1 +1,1 @@
-require("./preload/index");
+require("./dist/preload.js");

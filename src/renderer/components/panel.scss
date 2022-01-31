@@ -1,0 +1,17 @@
+.kernel-panel {
+    color: #ddd;
+}
+
+.kernel-title {
+    margin-bottom: 20px;
+    font-weight: bold;
+    font-size: 20px;
+    font-weight: 600;
+    font-family: var(--font-display);
+    color: var(--header-primary);
+}
+
+.kernel-card-scroller {
+    display: flex;
+    flex-direction: column;
+}

@@ -1,0 +1,73 @@
+.kernel-card {
+    position: relative;
+    border-radius: 4px;
+    background: var(--background-tertiary);
+    flex-grow: 1;
+    padding: 15px;
+    padding-bottom: 10px;
+    margin: 10px 10px 10px 0;
+    transition: box-shadow .2s ease-out,transform .2s ease-out,background .2s ease-out,opacity .2s ease-in,-webkit-box-shadow .2s ease-out,-webkit-transform .2s ease-out;
+
+    &:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--elevation-high);
+    }
+
+    .kernel-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+        border-bottom: thin solid var(--background-modifier-accent);
+
+        .kernel-card-name {
+            font-weight: 600;
+            font-family: var(--font-display);
+        }
+    }
+
+    .kernel-card-tools {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: -12px;
+        right: -12px;
+        display: flex;
+        border-radius: 4px;
+        background: var(--background-secondary-alt);
+        box-shadow: var(--elevation-medium);
+    }
+
+    .kernel-card-desc {
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+        border-bottom: thin solid var(--background-modifier-accent);
+    }
+    
+    .kernel-footer > div {
+        margin-left: auto;
+    }
+}
+
+.kernel-toolbutton {
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    &:hover {
+        background: var(--background-modifier-hover);
+    }
+
+    &:active {
+        color: var(--interactive-active);
+        background-color: var(--background-modifier-active);
+
+        svg {
+            transform: translateY(1px);
+        }
+    }
+}

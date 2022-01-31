@@ -1,7 +1,9 @@
-export default class Patcher {
-    static _patches = new Set();
+export namespace Patcher {
+    const patches = new Set<Function>();
 
-    static patch(module, func, callback, before = false) {
+    type PatcherCallback = (thisObject: any, methodArguments: IArguments, returnValue?: any) => any;
+
+    export function patch(module: any, func: string, callback: PatcherCallback, before = false) {
         const original = module[func];
         const unpatch = () => {module[func] = original;};
 
@@ -14,7 +16,7 @@ export default class Patcher {
                 }
             }
 
-            const returnValue = Reflect.apply(original, this, arguments);
+            let returnValue = Reflect.apply(original, this, arguments);
             if (before) return returnValue;
 
             try {
@@ -26,13 +28,16 @@ export default class Patcher {
 
             return returnValue;
         };
+        Object.assign(module[func], original, {
+            toString() {return original.toString()}
+        });
 
-        this._patches.add(unpatch);
+        patches.add(unpatch);
 
         return unpatch;
-    }
+    };
 
-    static unpatchAll() {
-        for (const unpatch of this._patches) unpatch();
-    }
+    export function unpatchAll() {
+        for (const unpatch of patches) unpatch();
+    };
 }

@@ -1,0 +1,29 @@
+{
+  "name": "kernel-settings",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build-renderer": "rollup -c --mode=renderer",
+    "build-main": "rollup -c --mode=main",
+    "build-preload": "rollup -c --mode=preload",
+    "dist": "npm run build-renderer && npm run build-main && npm run build-preload"
+  },
+  "keywords": [],
+  "author": "Strencher",
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-alias": "^3.1.9",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^13.1.3",
+    "@swc/core": "^1.2.135",
+    "@types/lodash": "^4.14.178",
+    "@types/react": "^17.0.38",
+    "@types/react-dom": "^17.0.11",
+    "rollup": "^2.66.1",
+    "rollup-plugin-scss": "^3.0.0",
+    "rollup-plugin-swc": "^0.2.0",
+    "rollup-plugin-uglify": "^6.0.4",
+    "sass": "^1.49.0"
+  }
+}
