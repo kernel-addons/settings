@@ -22,9 +22,9 @@ interface KernelSettings {
      * @param render Render/Options for the tab. See {@link SettingsOptions}
      */
     register(name: string, render: (() => React.ReactElement) | SectionOptions): () => boolean;
-    /*
+    /**
      * Represents all registered panels.
-    */
+     */
     panels: SettingsSection[];
     private initialize(): void;
 }
