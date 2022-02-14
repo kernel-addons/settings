@@ -17,7 +17,7 @@ interface SectionOptions {
 
 interface KernelSettings {
     /**
-     * Registers a tab in the settings section below "Kernel"
+     * Registers a tab in the settings section below "Kernel".
      * @param name Represents the name of the tab, will also be the label.
      * @param render Render/Options for the tab. See {@link SettingsOptions}
      */
