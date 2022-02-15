@@ -1,0 +1,105 @@
+.ks-marginBottom20 {margin-bottom: 20px;}
+
+
+.ksu-card {
+    padding: 15px;
+    background: var(--background-secondary);
+    border: 1px solid var(--background-tertiary);
+    border-radius: 4px;
+
+    .ksu-shield-container {
+        align-items: center;
+
+        .ksu-shield-warn {
+            color: var(--status-warning-background);
+        }
+
+        .ksu-shield-ok {
+            color: var(--info-positive-foreground);
+        }
+    }
+
+
+    .ksu-git-info {
+        min-width: 130px;
+
+        .ksu-git-info-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px;
+            background: var(--background-tertiary);
+            border-radius: 4px;
+            font-family: Consolas,Andale Mono WT,Andale Mono,Lucida Console,Lucida Sans Typewriter,DejaVu Sans Mono,Bitstream Vera Sans Mono,Liberation Mono,Nimbus Mono L,Monaco,Courier New,Courier,monospace;
+            font-size: 80%;
+
+            & + .ksu-git-info-item {
+                margin-top: 5px;
+            }
+        
+            .pc-spinner {
+                padding-bottom: 2px;
+            }
+        }
+    }
+
+    .ksu-divider {
+        margin: 10px 0;
+    }
+
+    .ksu-spinner, .ksu-spinner > span {
+        display: inline;
+    }
+
+    .ksu-commit-hash {
+        padding: 0 2px;
+        background: var(--background-tertiary);
+        border-radius: 4px;
+        margin-right: 3px;
+
+        a {
+            font-size: 80%;
+        }
+    }
+
+    .ksu-commit-author-avatar {
+        border-radius: 4px;
+    }
+    
+    .ksu-commit-author {
+        display: inline-flex;
+        align-items: center;
+        vertical-align: bottom;
+        margin-bottom: -2px;
+    }
+    
+    .ksu-commit-author-name {
+        margin-left: 3px;
+    }
+    
+    .ksu-commit-author-label {
+        color: var(--text-muted);
+    }
+
+    .ksu-reload-button div {
+        display: flex;
+
+        svg {
+            margin-left: 3px;
+        }
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(1turn);
+    }
+}
+
+.ks-update-available {
+    animation: spin 2s linear infinite;
+}

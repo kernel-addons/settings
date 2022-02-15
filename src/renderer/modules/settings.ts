@@ -1,6 +1,8 @@
-import {Patcher} from "./patcher.js";
-import Webpack from "./webpack.js";
-import type React from "react";
+import {Patcher} from "./patcher";
+import Webpack from "./webpack";
+import Events from "./events";
+
+const win = window as any;
 
 export namespace SettingsRenderer {
     let initialized = false;
@@ -11,6 +13,11 @@ export namespace SettingsRenderer {
         label?: string;
         id?: string;
         className?: string;
+        icon?: React.ReactElement | string;
+        color?: string;
+        onClick?: Function;
+        newIndicator?: boolean;
+        badgeCount?: number;
     };
 
     export type PanelOptions = {
@@ -18,7 +25,7 @@ export namespace SettingsRenderer {
         className?: string;
     };
 
-    export const panels: Section[] = [
+    export const panels: Section[] = win["__kernel_settings_cache__"] ?? [
         {section: "DIVIDER"},
         {section: "HEADER", label: "Kernel", id: "kernel-settings"}
     ];
@@ -29,7 +36,8 @@ export namespace SettingsRenderer {
             label: name,
             id: `kernel-settings-${name}`,
             className: `kernel-settings`,
-            element: typeof render === "function" ? render : render.render
+            element: typeof render === "function" ? render : render.render,
+            ...(typeof render === "object" ? render : {})
         };
 
         SettingsRenderer.panels.push(panel);
@@ -42,19 +50,23 @@ export namespace SettingsRenderer {
         };
     };
 
-    export function initialize(): void {
+    export async function initialize(): Promise<void> {
         if (initialized) return;
         initialized = true;
 
-        const SettingsView = Webpack.findByDisplayName("SettingsView");
+        const SettingsView = await Webpack.findLazy(Webpack.Filters.byDisplayName("SettingsView"));
     
-        Patcher.patch(SettingsView.prototype, "getPredicateSections", function (_, res) {
+        if (!win["__kernel_settings_cache__"]) Patcher.patch(SettingsView.prototype, "getPredicateSections", function (_, res) {
             if (!Array.isArray(res) || !res.some(e => e?.section?.toLowerCase() === "changelog") || res.some(s => s?.id === "kernel-settings")) return;
 
             const index = res.findIndex(s => s?.section?.toLowerCase() === "changelog") - 1;
             if (index < 0) return;
 
             res.splice(index, 0, ...SettingsRenderer.panels);
+        });
+
+        Events.addEventListener("reload-core", () => {
+            win["__kernel_settings_cache__"] = panels;
         });
     };
 }
