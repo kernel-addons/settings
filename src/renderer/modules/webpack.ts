@@ -112,7 +112,8 @@ class WebpackModule {
     }
 
     findLazy(filter: Function): Promise<any> {
-        if (this.findModule(filter)) return Promise.resolve(filter);
+        const fromCache = this.findModule(filter);
+        if (fromCache) return Promise.resolve(fromCache);
 
         return new Promise(resolve => {
             const listener = (m: any) => {
@@ -126,7 +127,7 @@ class WebpackModule {
                 const defaultMatch = filter(m.default);
                 if (!defaultMatch) return;
 
-                resolve(m);
+                resolve(m.default);
                 remove();
             };
 
