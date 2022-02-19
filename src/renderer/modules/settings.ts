@@ -18,11 +18,13 @@ export namespace SettingsRenderer {
         onClick?: Function;
         newIndicator?: boolean;
         badgeCount?: number;
+        order?: number;
     };
-
+    
     export type PanelOptions = {
         render(): React.ReactElement;
         className?: string;
+        order?: number;
     };
 
     export const panels: Section[] = win["__kernel_settings_cache__"] ?? [
@@ -41,6 +43,7 @@ export namespace SettingsRenderer {
         };
 
         SettingsRenderer.panels.push(panel);
+        SettingsRenderer.panels.sort((a, b) => a.order - b.order);
 
         return () => {
             const index = SettingsRenderer.panels.indexOf(panel);

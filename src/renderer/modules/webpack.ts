@@ -35,7 +35,25 @@ class WebpackModule {
     get id() {return Symbol("kernel-settings");}
 
     constructor() {
-        this.waitForGlobal.then(() => {
+        this.whenReady = this.waitForGlobal.then(() => new Promise(async onReady => {
+            const [Dispatcher, {ActionTypes} = {}, UserStore] = await this.findByProps(
+                ["dirtyDispatch"], ["API_HOST", "ActionTypes"], ["getCurrentUser", "_dispatchToken"],
+                {cache: false, bulk: true, wait: true, forever: true}
+            );
+
+            if (UserStore.getCurrentUser()) return onReady();
+            
+            const listener = function () {
+                Dispatcher.unsubscribe(ActionTypes.START_SESSION, listener);
+                Dispatcher.unsubscribe(ActionTypes.CONNECTION_OPEN, listener);
+                onReady();
+            };
+
+            Dispatcher.subscribe(ActionTypes.START_SESSION, listener);
+            Dispatcher.subscribe(ActionTypes.CONNECTION_OPEN, listener);
+        }));
+
+        this.whenReady.then(() => {
             let originalPush = window[this.chunkName].push;
 
             const handlePush = (chunk: any[]) => {
@@ -44,8 +62,9 @@ class WebpackModule {
                 for (const moduleId in modules) {
                     const originalModule = modules[moduleId];
 
-                    modules[moduleId] = (module, exports, require) => {
-                        originalModule.call(originalModule, module, exports, require);
+                    modules[moduleId] = (...args) => {
+                        const [, exports] = args;
+                        originalModule.apply(originalModule, args);
 
                         const listeners = [...this.#listeners];
                         for (let i = 0; i < listeners.length; i++) {
@@ -79,24 +98,6 @@ class WebpackModule {
                 }
             });
         });
-
-        this.whenReady = this.waitForGlobal.then(() => new Promise(async onReady => {
-            const [Dispatcher, {ActionTypes} = {}, UserStore] = await this.findByProps(
-                ["dirtyDispatch"], ["API_HOST", "ActionTypes"], ["getCurrentUser", "_dispatchToken"],
-                {cache: false, bulk: true, wait: true, forever: true}
-            );
-
-            if (UserStore.getCurrentUser()) return onReady();
-            
-            const listener = function () {
-                Dispatcher.unsubscribe(ActionTypes.START_SESSION, listener);
-                Dispatcher.unsubscribe(ActionTypes.CONNECTION_OPEN, listener);
-                onReady();
-            };
-
-            Dispatcher.subscribe(ActionTypes.START_SESSION, listener);
-            Dispatcher.subscribe(ActionTypes.CONNECTION_OPEN, listener);
-        }));
     }
 
     addListener(listener: Function) {

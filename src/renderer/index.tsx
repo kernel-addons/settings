@@ -34,8 +34,14 @@ export namespace Core {
 
     export function registerSettings(): void {
         let flush = [
-            SettingsRenderer.register("Updates", () => <UpdaterPanel />),
-            SettingsRenderer.register("Packages", () => <KernelPanel />)
+            SettingsRenderer.register("Updates", {
+                render: () => <UpdaterPanel />,
+                order: 2
+            }),
+            SettingsRenderer.register("Packages", {
+                render: () => <KernelPanel />,
+                order: 1
+            })
         ];
 
         Events.addEventListener("reload-core", () => {
@@ -91,12 +97,4 @@ export namespace Core {
         Patcher.unpatchAll();
         styleElement?.remove();
     };
-
-    export function getGitInfo(): Promise<string> {
-        return 
-    }
-
-    export async function checkForUpdates(): Promise<void> {
-        
-    }
 }
