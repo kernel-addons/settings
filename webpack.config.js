@@ -26,11 +26,10 @@ module.exports = args => {
         },
         externals: {
             sass: "sass",
-            inspector: "inspector",
-            path: "path",
-            fs: "fs",
-            module: "module",
             electron: "electron",
+            ...Object.fromEntries(
+                require("module").builtinModules.map(mod => [mod, mod])
+            )
         },
         module: {
             rules: [

@@ -2,7 +2,7 @@ const period = "@@@===@@@";
 const commitFields = ["hash", "hash_short", "author", "date", "message"];
 const hashFields = ["short", "full"];
 
-const runJS = SettingsNative.requireModule("run");
+const child_process = SettingsNative.requireModule("child_process");
 
 export type Commit = {
     hash?: string,
@@ -14,15 +14,12 @@ export type Commit = {
 
 export default class Git {
     static executeCmd(cmd: string, cwd?: string): Promise<string> {
-        return runJS(`new Promise((resolve, reject) => {
-            require("child_process").exec(${JSON.stringify(cmd)}, {
-                cwd: ${JSON.stringify(cwd)}
-            }, (error, res) => {
+        return new Promise((resolve, reject) => {
+            child_process.exec(cmd, {cwd}, (error, stdout) => {
                 if (error) return reject(error);
-                
-                resolve(res);
+                resolve(stdout);
             });
-        })`);
+        });
     }
 
     static async isInstalled(): Promise<boolean> {

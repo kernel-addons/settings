@@ -6,7 +6,11 @@ const DiscordComponents = memoize({
     get Switch() {return Webpack.findByDisplayName("Switch");},
     get Markdown() {return Webpack.findModule(m => m.displayName === "Markdown" && "rules" in m);},
     get Header() {return Webpack.findModule(m => m.displayName === "Header" && "Tags" in m);},
-    get Text() {return Webpack.findByDisplayName("Text");},
+    get Text() {
+        const names = new Set(["Text", "LegacyText"]);
+
+        return Webpack.findModule(m => names.has(m.displayName));
+    },
     get Forms() {return Webpack.findByProps("FormItem", "FormTitle");},
     get Spinner() {return Webpack.findByDisplayName("Spinner");},
     get Flex() {return Webpack.findByDisplayName("Flex");},
