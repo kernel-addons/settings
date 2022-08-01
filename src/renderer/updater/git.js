@@ -1,19 +1,16 @@
+const handler = (cmd, cwd) => new Promise((resolve, reject) => {
+    require("child_process").exec(cmd, {cwd}, (error, stdout) => {
+        if (error) return reject(error);
+
+        resolve(stdout);
+    });
+});
+
+const runCommand = SettingsNative.requireModule("run")(handler.toString());
+
 export default class Git {
     static async executeCmd(cmd, cwd) {
-        return new Promise((resolve, reject) => {
-            const id = "GIT_CMD_" + Math.random().toString(36).slice(2);
-            KernelSettingsIPC.on(id, (error, res) => {
-                if (error) reject(error);
-                else resolve(res);
-            });
-
-            KernelSettings.executeJS(`void require("child_process").exec(${JSON.stringify(cmd)}, {
-                cwd: ${JSON.stringify(cwd)}
-            }, (error, res) => {
-                KernelSettingsIPC.dispatch(${JSON.stringify(id)}, error, res);
-                delete KernelSettingsIPCEvents[${JSON.stringify(id)}];
-            })`);
-        });
+        return runCommand(cmd, cwd);
     }
 
     static async hasGitInstalled() {

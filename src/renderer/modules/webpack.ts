@@ -40,7 +40,7 @@ class WebpackModule {
 
     constructor() {
         this.whenReady = this.waitForGlobal.then(() => new Promise(async onReady => {
-            const [Dispatcher, {ActionTypes} = {}, UserStore] = await this.findByProps(
+            const [Dispatcher, UserStore] = await this.findByProps(
                 ["dirtyDispatch"], ["API_HOST", "ActionTypes"], ["getCurrentUser", "_dispatchToken"],
                 {cache: false, bulk: true, wait: true, forever: true}
             );
@@ -48,13 +48,13 @@ class WebpackModule {
             if (UserStore.getCurrentUser()) return onReady();
             
             const listener = function () {
-                Dispatcher.unsubscribe(ActionTypes.START_SESSION, listener);
-                Dispatcher.unsubscribe(ActionTypes.CONNECTION_OPEN, listener);
+                Dispatcher.unsubscribe("START_SESSION", listener);
+                Dispatcher.unsubscribe("CONNECTION_OPEN", listener);
                 onReady();
             };
 
-            Dispatcher.subscribe(ActionTypes.START_SESSION, listener);
-            Dispatcher.subscribe(ActionTypes.CONNECTION_OPEN, listener);
+            Dispatcher.subscribe("START_SESSION", listener);
+            Dispatcher.subscribe("CONNECTION_OPEN", listener);
         }));
 
         this.whenReady.then(() => {
