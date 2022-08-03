@@ -52,7 +52,7 @@ export namespace Core {
     };
 
     export function exposeGlobals(): void {
-        const Dispatcher = Webpack.findByProps("dirtyDispatch");
+        const Dispatcher = Webpack.findByProps("_dispatch", "dispatch");
 
         Object.defineProperties(window, {
             KernelSettings: {
@@ -67,7 +67,7 @@ export namespace Core {
             }
         });
 
-        Dispatcher.dirtyDispatch({type: "KERNEL_SETTINGS_INIT"});
+        Dispatcher.wait(() => Dispatcher.dispatch({type: "KERNEL_SETTINGS_INIT"}));
     }
 
     export function loadStyles(): void {
