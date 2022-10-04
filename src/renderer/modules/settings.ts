@@ -57,7 +57,7 @@ export namespace SettingsRenderer {
         if (initialized) return;
         initialized = true;
 
-        const SettingsView = await Webpack.findLazy(Webpack.Filters.byDisplayName("SettingsView"));
+        const SettingsView = await Webpack.findLazy(Webpack.Filters.byPrototype("getPredicateSections"));
     
         if (!win["__kernel_settings_cache__"]) Patcher.patch(SettingsView.prototype, "getPredicateSections", function (_, res) {
             if (!Array.isArray(res) || !res.some(e => e?.section?.toLowerCase() === "changelog") || res.some(s => s?.id === "kernel-settings")) return;

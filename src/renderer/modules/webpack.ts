@@ -26,6 +26,13 @@ export class Filters {
     static byTypeString(...strings: string[]) {
         return (module: any) => module.type && (module = module.type?.toString()) && strings.every(str => module.indexOf(str) > -1);
     }
+    static byCode(...strings: string[]) {
+        return (module: any) => (module = module.toString()) && strings.every(str => module.indexOf(str) > -1);
+    }
+    static byPrototype(...props: string[]) {
+        const filter = Filters.byProps(...props);
+        return (module: any) => module.prototype && filter(module.prototype);
+    }
 }
 
 export type ModuleFilter = (module: any, index: number) => boolean;
@@ -167,7 +174,7 @@ class WebpackModule {
         return req;
     }
 
-    findModule(filter: ModuleFilter, {all = false, cache = true, force = false, default: defaultExports = false} = {}) {
+    findModule(filter: ModuleFilter, {all = false, cache = true, force = true, default: defaultExports = false} = {}) {
         if (typeof (filter) !== "function") return void 0;
 
         const __webpack_require__ = this.request(cache);
@@ -195,7 +202,7 @@ class WebpackModule {
                         found.push(module);
                     }
 
-                    if (module.__esModule &&
+                    if (/* module.__esModule && */
                         module.default != null &&
                         typeof module.default !== "number" &&
                         wrapFilter(module.default, id)
@@ -205,7 +212,7 @@ class WebpackModule {
                         found.push(exports);
                     }
 
-                    if (force && module.__esModule) for (const key in module) {
+                    if (force /* && module.__esModule */) for (const key in module) {
                         if (!module[key]) continue;
 
                         if (wrapFilter(module[key], id)) {

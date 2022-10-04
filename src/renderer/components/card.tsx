@@ -1,23 +1,15 @@
 import "./card.scss";
 import DiscordComponents from "./discord";
+import Icon from './icons';
 
 const kernel: any = (window as any).kernel;
 const Electron = SettingsNative.requireModule("electron");
-
-export function Icon({name, ...props}) {
-    const IconComponent = DiscordComponents.Icons[name] ?? (() => null);
-    props.size ??= "16";
-
-    return (
-        <IconComponent {...props} width={props.size} height={props.size} />
-    );
-}
 
 export function ToolButton({label, icon, onClick, danger = false}) {
     const {Tooltips, Button} = DiscordComponents;
 
     return (
-        <Tooltips.Tooltip text={label} position="top">
+        <Tooltips text={label} position="top">
             {props => (
                 <Button
                     {...props}
@@ -29,7 +21,7 @@ export function ToolButton({label, icon, onClick, danger = false}) {
                     <Icon size="20" name={icon} color={danger ? "#ed4245" : undefined} />
                 </Button>
             )}
-        </Tooltips.Tooltip>
+        </Tooltips>
     );
 }
 
