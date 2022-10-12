@@ -73,7 +73,7 @@ let needsReload = false;
 export default function UpdaterPanel() {
     const {Moment} = DiscordModules;
     const [errorMessage, setError] = React.useState(null);
-    const {Link, Button, Text, Flex, Forms: {FormTitle, FormNotice, FormDivider, FormItem}, Spinner} = DiscordComponents;
+    const {Link, Button, Text, Flex, FormTitle, FormNotice, FormDivider, FormItem, Spinner} = DiscordComponents;
     const git = useGitCommand<boolean>(() => Git.isInstalled());
     const updates = useGitCommand<Commit[]>(async () => {
         if (!git.loaded || !git.result) return [];

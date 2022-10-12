@@ -5,7 +5,7 @@ import "./panel.scss";
 const kernel: any = (window as any).kernel;
 
 export default function KernelPanel() {
-    const {Forms: {FormTitle}} = DiscordComponents;
+    const {FormTitle} = DiscordComponents;
 
     return (
         <div className="kernel-panel">

@@ -1,34 +1,19 @@
 import memoize from "../modules/memoize";
-import Webpack from "../modules/webpack";
+import Webpack, { Filters } from "../modules/webpack";
 
 const DiscordComponents = memoize({
     get Button() {return Webpack.findByProps("BorderColors");},
-    get Switch() {return Webpack.findByDisplayName("Switch");},
-    get Markdown() {return Webpack.findModule(m => m.displayName === "Markdown" && "rules" in m);},
-    get Header() {return Webpack.findModule(m => m.displayName === "Header" && "Tags" in m);},
-    get Text() {
-        const names = new Set(["Text", "LegacyText"]);
-
-        return Webpack.findModule(m => names.has(m.displayName));
-    },
-    get Forms() {return Webpack.findByProps("FormItem", "FormTitle");},
-    get Spinner() {return Webpack.findByDisplayName("Spinner");},
-    get Flex() {return Webpack.findByDisplayName("Flex");},
-    get Link() {return Webpack.findByDisplayName("Anchor");},
-    get Icons() {
-        const icons = Webpack.findModules(m => typeof m === "function" && m.displayName && m.toString().indexOf("currentColor") > -1);
-
-        return Object.fromEntries(icons.map(icon => [icon.displayName, icon]));
-    },
-    get Tooltips() {
-        const TooltipModule = Webpack.findByProps("TooltipContainer");
-
-        return {
-            Container: TooltipModule.TooltipContainer,
-            Tooltip: TooltipModule.default,
-            ...TooltipModule
-        };
-    }
+    get Switch() {return Webpack.findModule(m => typeof m === 'function' && Filters.byCode('helpdeskArticleId')(m));},
+    get Markdown() {return Webpack.findModule(m => m?.prototype?.render && m.rules);},
+    get Text() {return Webpack.findModule(m => m.Sizes?.SIZE_24 && m.Colors?.LINK);},
+    get Spinner() {return Webpack.findModule(m => m.Type?.SPINNING_CIRCLE);},
+    get Flex() {return Webpack.findByProps("Child", "Align");},
+    get Link() {return Webpack.findModule(m => typeof m === 'function' && Filters.byCode('href', 'anchor')(m));},
+    get FormTitle() {return Webpack.findModule(m => m.Tags && Filters.byCode('errorSeparator')(m));},
+    get FormNotice() {return Webpack.findModule(m => m.Types && Filters.byCode('formNoticeTitle', 'formNoticeBody')(m));},
+    get FormDivider() {return Webpack.findModule(m => typeof m === 'function' && (m = m.toString()) && m.length < 200 && m.includes('divider'));},
+    get FormItem() {return Webpack.findModule(m => m.Tags && Filters.byCode('children', 'createElement', 'disabled', 'tag', 'title')(m));},
+    get Tooltips() {return Webpack.findByProps("Positions", "Colors");}
 });
 
 export default DiscordComponents;
